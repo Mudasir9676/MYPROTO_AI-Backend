@@ -1,23 +1,35 @@
 const express = require('express');
 const cors = require('cors');
 const app = express();
-
 require("dotenv").config();
-  const clientUrl=process.env.CLIENT_URL
+
 const allowedOrigins = [
-  'http://localhost:4200',
-  clientUrl
+  process.env.CLIENT_URL,       // your deployed frontend
+  'http://localhost:4200',      // Angular dev server
 ];
 
+// Single CORS middleware with logs
 app.use(cors({
   origin: function (origin, callback) {
-    if (!origin || allowedOrigins.includes(origin)) {
+    console.log("CORS check. Request origin:", origin);
+
+    if (!origin) {
+      // e.g., curl or same-origin request
+      console.log("No origin, allowing request");
+      callback(null, true);
+    } else if (allowedOrigins.includes(origin)) {
+      console.log("Allowed origin:", origin);
       callback(null, true);
     } else {
+      console.log("Blocked origin:", origin);
       callback(new Error("Not allowed by CORS"));
     }
-  }
+  },
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+  credentials: true, // allow cookies if needed
 }));
+
+app.use(express.json());
 
 const Groq = require("groq-sdk");
 
