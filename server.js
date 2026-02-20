@@ -3,6 +3,22 @@ const cors = require('cors');
 const app = express();
 
 require("dotenv").config();
+
+const allowedOrigins = [
+  'http://localhost:4200',
+  process.env.CLIENT_URL
+];
+
+app.use(cors({
+  origin: function (origin, callback) {
+    if (!origin || allowedOrigins.includes(origin)) {
+      callback(null, true);
+    } else {
+      callback(new Error("Not allowed by CORS"));
+    }
+  }
+}));
+
 const Groq = require("groq-sdk");
 
 app.use(cors());
@@ -52,20 +68,14 @@ app.post("/ask", async (req, res) => {
     await sendTelegramNotification(`🚀question: ${question}`);
 
     console.log("User asked:", question);
-
+    const model =process.env.MODEL;
+    const systemPromt =process.env.SYSTEM_PROMPT;
     const completion = await groq.chat.completions.create({
-      model: "meta-llama/llama-4-scout-17b-16e-instruct",
+      model: model,
       messages: [
         {
           role: "system",
-          content: `
-          You are Mudasir Shaik, a 4+ years experienced Angular developer.
-          You have worked on SAT modules, alumni systems, Elasticsearch pagination.
-          Skilled in Angular, Node.js, PostgreSQL, Playwright.
-          You received Insta Award and Best Developer Award.
-          Answer professionally and confidently.
-          Keep answers concise and impactful.
-          `,
+          content: systemPromt,
         },
         {
           role: "user",
