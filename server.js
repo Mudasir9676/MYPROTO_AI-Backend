@@ -1,32 +1,31 @@
-const express = require('express');
-const cors = require('cors');
-const app = express();
-require("dotenv").config();
-
+// --------------------
+// Allowed Origins
+// --------------------
 const allowedOrigins = [
-  process.env.CLIENT_URL,       // your deployed frontend
-  'http://localhost:4200',      // Angular dev server
+  'http://localhost:4200',           // Angular dev
+  process.env.CLIENT_URL,            // deployed frontend
+  'https://myprotoai.netlify.app',  // Netlify frontend
 ];
 
-// Single CORS middleware with logs
+// --------------------
+// CORS Middleware
+// --------------------
 app.use(cors({
-  origin: function (origin, callback) {
+  origin: function(origin, callback) {
     console.log("CORS check. Request origin:", origin);
-
     if (!origin) {
-      // e.g., curl or same-origin request
-      console.log("No origin, allowing request");
+      console.log("No origin, allowing request (server-to-server or curl).");
       callback(null, true);
     } else if (allowedOrigins.includes(origin)) {
       console.log("Allowed origin:", origin);
       callback(null, true);
     } else {
-      console.log("Blocked origin:", origin);
+      console.log("Blocked origin by CORS:", origin);
       callback(new Error("Not allowed by CORS"));
     }
   },
-  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
-  credentials: true, // allow cookies if needed
+  methods: ['GET', 'POST'],
+  credentials: true,
 }));
 
 app.use(express.json());
