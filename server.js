@@ -3,10 +3,10 @@ const cors = require('cors');
 const app = express();
 
 require("dotenv").config();
-
+  const clientUrl=process.env.CLIENT_URL
 const allowedOrigins = [
   'http://localhost:4200',
-  process.env.CLIENT_URL
+  clientUrl
 ];
 
 app.use(cors({
